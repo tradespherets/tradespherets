@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Trade Sphere - Sign In</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0B121A;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(76, 191, 154, 0.05) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(47, 174, 133, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 1200px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .signin-card {
+            background: #141E2A;
+            border-radius: 32px;
+            padding: 40px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(76, 191, 154, 0.1);
+            backdrop-filter: blur(10px);
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #4CBF9A, #2FAE85);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: #0B121A;
+            box-shadow: 0 10px 20px -5px rgba(76, 191, 154, 0.3);
+        }
+
+        .logo-text {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff, #e0e0e0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .tagline {
+            color: #94A3B8;
+            font-size: 15px;
+            font-weight: 400;
+        }
+
+        .form-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #ffffff;
+        }
+
+        .form-subtitle {
+            color: #94A3B8;
+            font-size: 14px;
+            margin-bottom: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 6px;
+            color: #CBD5E0;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            color: #4CBF9A;
+            font-size: 18px;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+            z-index: 1;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 16px 16px 16px 48px;
+            background: #1A2533;
+            border: 2px solid transparent;
+            border-radius: 16px;
+            font-size: 15px;
+            color: #ffffff;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #4CBF9A;
+            background: #141E2A;
+            box-shadow: 0 0 0 4px rgba(76, 191, 154, 0.1);
+        }
+
+        .input-field::placeholder {
+            color: #4A5568;
+            font-weight: 300;
+        }
+
+        .input-field:hover {
+            background: #1f2c3d;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            color: #94A3B8;
+            cursor: pointer;
+            font-size: 18px;
+            transition: color 0.3s ease;
+            z-index: 1;
+            padding: 8px;
+        }
+
+        .password-toggle:hover {
+            color: #4CBF9A;
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-top: 8px;
+        }
+
+        .forgot-password a {
+            color: #4CBF9A;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .forgot-password a:hover {
+            color: #2FAE85;
+            text-decoration: underline;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 20px 0 24px;
+        }
+
+        .checkbox-custom {
+            min-width: 20px;
+            width: 20px;
+            height: 20px;
+            background: #1A2533;
+            border: 2px solid #2D3748;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-custom.checked {
+            background: #4CBF9A;
+            border-color: #4CBF9A;
+        }
+
+        .checkbox-custom i {
+            color: #0B121A;
+            font-size: 12px;
+            display: none;
+        }
+
+        .checkbox-custom.checked i {
+            display: block;
+        }
+
+        .checkbox-label {
+            color: #CBD5E0;
+            font-size: 14px;
+            flex: 1;
+        }
+
+        .signin-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #4CBF9A, #2FAE85);
+            border: none;
+            border-radius: 16px;
+            color: #0B121A;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .signin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 30px -10px rgba(76, 191, 154, 0.4);
+        }
+
+        .signin-btn:active {
+            transform: translateY(0);
+        }
+
+        .signin-btn.loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .signin-btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 2px solid #0B121A;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .signup-link {
+            text-align: center;
+            color: #94A3B8;
+            font-size: 14px;
+        }
+
+        .signup-link a {
+            color: #4CBF9A;
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 4px;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Success Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(11, 18, 26, 0.95);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+            padding: 16px;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: #141E2A;
+            border-radius: 32px;
+            padding: 40px 32px;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid rgba(76, 191, 154, 0.3);
+            animation: slideUp 0.4s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .success-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #4CBF9A, #2FAE85);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 32px;
+            color: #0B121A;
+            box-shadow: 0 20px 30px -10px rgba(76, 191, 154, 0.4);
+        }
+
+        .modal-title {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 14px;
+            color: #ffffff;
+            line-height: 1.3;
+        }
+
+        .modal-text {
+            color: #94A3B8;
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 28px;
+        }
+
+        .user-email {
+            background: #1A2533;
+            padding: 12px 16px;
+            border-radius: 30px;
+            display: inline-block;
+            margin-bottom: 20px;
+            border: 1px solid #4CBF9A;
+            color: #4CBF9A;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .user-email i {
+            margin-right: 8px;
+        }
+
+        .apk-download-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, #4CBF9A, #2FAE85);
+            border: none;
+            border-radius: 16px;
+            color: #0B121A;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            width: 100%;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .apk-download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 30px -10px rgba(76, 191, 154, 0.4);
+        }
+
+        .apk-download-btn:active {
+            transform: translateY(0);
+        }
+
+        .apk-download-btn i {
+            font-size: 20px;
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            left: 16px;
+            z-index: 2000;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .toast {
+            background: #1A2533;
+            border-left: 4px solid #4CBF9A;
+            border-radius: 12px;
+            padding: 14px 18px;
+            margin-bottom: 10px;
+            color: #ffffff;
+            font-size: 14px;
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.5);
+            animation: slideInRight 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 280px;
+            max-width: 100%;
+            pointer-events: auto;
+            backdrop-filter: blur(10px);
+        }
+
+        .toast.error {
+            border-left-color: #ef4444;
+        }
+
+        .toast.success {
+            border-left-color: #4CBF9A;
+        }
+
+        .toast i {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .toast.error i {
+            color: #ef4444;
+        }
+
+        .toast.success i {
+            color: #4CBF9A;
+        }
+
+        .toast span {
+            flex: 1;
+            word-break: break-word;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 480px) {
+            .signin-card {
+                padding: 28px 20px;
+                border-radius: 24px;
+            }
+
+            .logo-icon {
+                width: 44px;
+                height: 44px;
+                font-size: 22px;
+            }
+
+            .logo-text {
+                font-size: 24px;
+            }
+
+            .tagline {
+                font-size: 14px;
+            }
+
+            .form-title {
+                font-size: 22px;
+            }
+
+            .form-subtitle {
+                font-size: 13px;
+                margin-bottom: 24px;
+            }
+
+            .input-field {
+                padding: 14px 14px 14px 44px;
+                font-size: 14px;
+            }
+
+            .input-icon {
+                left: 14px;
+                font-size: 16px;
+            }
+
+            .password-toggle {
+                right: 14px;
+                font-size: 16px;
+            }
+
+            .signin-btn {
+                padding: 16px;
+                font-size: 15px;
+            }
+
+            .modal-content {
+                padding: 32px 20px;
+            }
+
+            .success-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 28px;
+            }
+
+            .modal-title {
+                font-size: 22px;
+            }
+
+            .modal-text {
+                font-size: 14px;
+                margin-bottom: 24px;
+            }
+
+            .apk-download-btn {
+                padding: 14px 20px;
+                font-size: 15px;
+            }
+
+            .toast-container {
+                top: 12px;
+                right: 12px;
+                left: 12px;
+            }
+
+            .toast {
+                padding: 12px 16px;
+                font-size: 13px;
+                min-width: auto;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+    
+    <div class="container">
+        <div class="signin-card">
+            <div class="logo-section">
+                <div class="logo">
+                    <div class="logo-icon">TS</div>
+                    <span class="logo-text">Trade Sphere</span>
+                </div>
+                <p class="tagline">Welcome back to trading</p>
+            </div>
+
+            <h2 class="form-title">Sign In</h2>
+            <p class="form-subtitle">Access your trading account</p>
+
+            <form id="signinForm">
+                <div class="form-group">
+                    <label class="input-label">Email Address</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" class="input-field" id="email" placeholder="Enter your email" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="input-label">Password</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" class="input-field" id="password" placeholder="Enter your password" required>
+                        <i class="fas fa-eye password-toggle" onclick="togglePassword('password')"></i>
+                    </div>
+                    <div class="forgot-password">
+                        <a href="#" id="forgotPassword">Forgot Password?</a>
+                    </div>
+                </div>
+
+                <div class="remember-me">
+                    <div class="checkbox-custom" id="rememberCheckbox" onclick="toggleRemember()">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <span class="checkbox-label">Remember me</span>
+                </div>
+
+                <button type="submit" class="signin-btn" id="signinBtn">Sign In</button>
+
+                <p class="signup-link">
+                    Don't have an account? <a href="index.html">Create Account</a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal-overlay" id="successModal">
+        <div class="modal-content">
+            <div class="success-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <h2 class="modal-title">Welcome Back!</h2>
+            <div class="user-email" id="userEmailDisplay">
+                <i class="fas fa-user"></i>
+                <span></span>
+            </div>
+            <p class="modal-text">
+                You have successfully signed in. Get started by downloading our mobile app.
+            </p>
+            <a href="#" class="apk-download-btn" id="downloadApkBtn" download>
+                <i class="fas fa-download"></i>
+                Download APK
+            </a>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div class="modal-overlay" id="forgotPasswordModal">
+        <div class="modal-content">
+            <div class="success-icon" style="background: linear-gradient(135deg, #4CBF9A, #2FAE85);">
+                <i class="fas fa-key"></i>
+            </div>
+            <h2 class="modal-title">Reset Password</h2>
+            <p class="modal-text">
+                Enter your email address and we'll send you a link to reset your password.
+            </p>
+            <div class="form-group" style="margin-bottom: 24px;">
+                <input type="email" class="input-field" id="resetEmail" placeholder="Enter your email" style="padding: 16px;">
+            </div>
+            <button class="apk-download-btn" id="resetPasswordBtn" style="margin-bottom: 16px;">
+                <i class="fas fa-paper-plane"></i>
+                Send Reset Link
+            </button>
+            <button class="close-modal" onclick="closeForgotModal()" style="background: none; border: none; color: #94A3B8; cursor: pointer; font-size: 14px;">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAwzVBIWkeyqOtLYO55lFnO9Jk3qw1TJ64",
+            authDomain: "tradesphere-ce432.firebaseapp.com",
+            databaseURL: "https://tradesphere-ce432-default-rtdb.firebaseio.com",
+            projectId: "tradesphere-ce432",
+            storageBucket: "tradesphere-ce432.firebasestorage.app",
+            messagingSenderId: "666038910424",
+            appId: "1:666038910424:web:466d286ca112ec91f2c6ad"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        // Set persistence to LOCAL for "Remember Me" functionality
+        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+        // State variables
+        let rememberMe = false;
+
+        // Toggle password visibility
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            const icon = field.nextElementSibling;
+            
+            if (field.type === 'password') {
+                field.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                field.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // Toggle remember me checkbox
+        function toggleRemember() {
+            const checkbox = document.getElementById('rememberCheckbox');
+            rememberMe = !rememberMe;
+            
+            if (rememberMe) {
+                checkbox.classList.add('checked');
+                // Set persistence to LOCAL
+                auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+            } else {
+                checkbox.classList.remove('checked');
+                // Set persistence to SESSION
+                auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+            }
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+            
+            toast.innerHTML = `
+                <i class="fas ${icon}"></i>
+                <span>${message}</span>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideInRight 0.3s reverse';
+                setTimeout(() => {
+                    container.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+
+        // Show success modal
+        function showSuccessModal(userEmail) {
+            document.getElementById('userEmailDisplay').querySelector('span').textContent = userEmail;
+            document.getElementById('successModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close success modal
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        // Show forgot password modal
+        function showForgotModal() {
+            document.getElementById('forgotPasswordModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close forgot password modal
+        function closeForgotModal() {
+            document.getElementById('forgotPasswordModal').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        // Generate APK download link (real APK file)
+        function getApkDownloadUrl() {
+            // Replace this with your actual APK file URL
+            return 'https://github.com/tradespherets/tradespherets/releases/download/ts.0.0/tradesphere.apk';
+        }
+
+        // Handle sign in form submission
+        document.getElementById('signinForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Get form values
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            // Validation
+            if (!email || !password) {
+                showToast('Please enter both email and password', 'error');
+                return;
+            }
+
+            // Email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showToast('Please enter a valid email address', 'error');
+                return;
+            }
+
+            // Show loading state
+            const signinBtn = document.getElementById('signinBtn');
+            signinBtn.classList.add('loading');
+            signinBtn.textContent = '';
+
+            try {
+                // Sign in with Firebase
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+
+                console.log('User signed in successfully:', user.uid);
+
+                // Update last login timestamp in database
+                await database.ref('users/' + user.uid).update({
+                    lastLogin: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                // Success - show toast
+                showToast('Signed in successfully!', 'success');
+                
+                // Set APK download link
+                const downloadBtn = document.getElementById('downloadApkBtn');
+                downloadBtn.href = getApkDownloadUrl();
+                downloadBtn.download = 'TradeSphere-v1.0.0.apk';
+                
+                // Show success modal after a brief delay
+                setTimeout(() => {
+                    showSuccessModal(user.email);
+                }, 500);
+
+                // Clear form
+                document.getElementById('signinForm').reset();
+                document.getElementById('rememberCheckbox').classList.remove('checked');
+                rememberMe = false;
+
+            } catch (error) {
+                console.error('Signin error:', error);
+                
+                let errorMessage = 'Sign in failed. Please try again.';
+                
+                // Handle specific Firebase errors
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        errorMessage = 'No account found with this email. Please sign up first.';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage = 'Incorrect password. Please try again.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Please enter a valid email address.';
+                        break;
+                    case 'auth/user-disabled':
+                        errorMessage = 'This account has been disabled. Please contact support.';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage = 'Too many failed attempts. Please try again later.';
+                        break;
+                    case 'auth/network-request-failed':
+                        errorMessage = 'Network error. Please check your internet connection.';
+                        break;
+                }
+                
+                showToast(errorMessage, 'error');
+            } finally {
+                // Remove loading state
+                signinBtn.classList.remove('loading');
+                signinBtn.textContent = 'Sign In';
+            }
+        });
+
+        // Handle forgot password
+        document.getElementById('forgotPassword').addEventListener('click', (e) => {
+            e.preventDefault();
+            showForgotModal();
+        });
+
+        // Handle password reset
+        document.getElementById('resetPasswordBtn').addEventListener('click', async () => {
+            const email = document.getElementById('resetEmail').value.trim();
+
+            if (!email) {
+                showToast('Please enter your email address', 'error');
+                return;
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showToast('Please enter a valid email address', 'error');
+                return;
+            }
+
+            try {
+                await auth.sendPasswordResetEmail(email);
+                showToast('Password reset email sent! Check your inbox.', 'success');
+                closeForgotModal();
+                document.getElementById('resetEmail').value = '';
+            } catch (error) {
+                console.error('Password reset error:', error);
+                
+                let errorMessage = 'Failed to send reset email. Please try again.';
+                if (error.code === 'auth/user-not-found') {
+                    errorMessage = 'No account found with this email.';
+                }
+                
+                showToast(errorMessage, 'error');
+            }
+        });
+
+        // Close modals when clicking outside
+        document.getElementById('successModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSuccessModal();
+            }
+        });
+
+        document.getElementById('forgotPasswordModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeForgotModal();
+            }
+        });
+
+        // Check if user is already signed in
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                console.log('User is already signed in:', user.email);
+                // You can auto-show the download modal or redirect to dashboard
+                // showSuccessModal(user.email);
+            }
+        });
+    </script>
+</body>
+</html>
