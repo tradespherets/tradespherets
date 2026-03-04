@@ -899,36 +899,7 @@
             }
         }
 
-        // Update referrer's team count
-        async function updateReferrerTeam(referralCode) {
-            if (!referralCode) return;
-
-            try {
-                const referrerRef = database.ref('users/' + referralCode);
-                const snapshot = await referrerRef.once('value');
-                
-                if (snapshot.exists()) {
-                    const referrerData = snapshot.val();
-                    const currentTeam = referrerData.team || 0;
-                    
-                    // Update team count
-                    await referrerRef.update({
-                        team: currentTeam + 1
-                    });
-
-                    // Also add to team members list if needed
-                    const currentYear = new Date().getFullYear();
-                    await database.ref('users/' + referralCode + '/team_members').push({
-                        joinedAt: firebase.database.ServerValue.TIMESTAMP,
-                        year: currentYear
-                    });
-
-                    console.log('Referrer team updated successfully');
-                }
-            } catch (error) {
-                console.error('Error updating referrer team:', error);
-            }
-        }
+        // ❌ REMOVED: updateReferrerTeam function - ab team count increment nahi hoga
 
         // Save user data to Firebase Realtime Database
         async function saveUserData(userId, userData) {
@@ -945,7 +916,7 @@
                     profit_balance: 0,
                     exchange_wallet: 0,
                     deposit_balance: 0,
-                    team: 0
+                    team: 0  // Team field reh gaya lekin increment nahi hoga ab
                 });
                 console.log('User data saved successfully');
             } catch (error) {
@@ -1056,10 +1027,7 @@
                     referralCode: referralCode
                 });
 
-                // Update referrer's team count if referral code was used
-                if (referralCode) {
-                    await updateReferrerTeam(referralCode);
-                }
+                // ❌ REMOVED: updateReferrerTeam function call - ab team count increment nahi hoga
 
                 console.log('User created successfully:', user.uid);
 
