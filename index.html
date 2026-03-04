@@ -743,9 +743,9 @@
                 <div class="referral-section">
                     <div class="referral-header">
                         <i class="fas fa-gift"></i>
-                        <span>Referral Code</span>
+                        <span>Referral Code (Optional)</span>
                     </div>
-                    <input type="text" class="referral-input" id="referralCode" placeholder="Enter referral code">
+                    <input type="text" class="referral-input" id="referralCode" placeholder="Enter referral code if you have one">
                     <div class="error-text" id="referralError">
                         <i class="fas fa-exclamation-circle"></i>
                         <span>Invalid referral code</span>
@@ -813,8 +813,6 @@
 
         // State variables
         let termsAccepted = false;
-        let isValidReferral = true; // Assume true if no referral code entered
-        let isCheckingReferral = false;
 
         // Toggle password visibility
         function togglePassword(fieldId) {
@@ -938,10 +936,9 @@
             
             try {
                 await database.ref('users/' + userId).set({
-                  
+                    fullName: userData.fullName,
                     email: userData.email,
                     referredby: userData.referralCode || '',
-                    
                     since: currentYear,                  
                     firstdepositdone: false,
                     trade_wallet: 0,
@@ -957,43 +954,6 @@
             }
         }
 
-        // Handle referral code input with debounce
-        let referralTimeout;
-        document.getElementById('referralCode').addEventListener('input', async (e) => {
-            clearTimeout(referralTimeout);
-            const referralCode = e.target.value.trim();
-            const errorElement = document.getElementById('referralError');
-            const inputElement = document.getElementById('referralCode');
-
-            if (!referralCode) {
-                errorElement.classList.remove('show');
-                inputElement.classList.remove('error');
-                isValidReferral = true;
-                return;
-            }
-
-            // Show checking indicator
-            inputElement.style.opacity = '0.7';
-            
-            referralTimeout = setTimeout(async () => {
-                isCheckingReferral = true;
-                const exists = await checkReferralCode(referralCode);
-                isCheckingReferral = false;
-                
-                inputElement.style.opacity = '1';
-                
-                if (!exists) {
-                    errorElement.classList.add('show');
-                    inputElement.classList.add('error');
-                    isValidReferral = false;
-                } else {
-                    errorElement.classList.remove('show');
-                    inputElement.classList.remove('error');
-                    isValidReferral = true;
-                }
-            }, 500);
-        });
-
         // Handle form submission
         document.getElementById('signupForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -1005,24 +965,16 @@
             const confirmPassword = document.getElementById('confirmPassword').value;
             const referralCode = document.getElementById('referralCode').value.trim();
 
-            // Validation
+            // Basic Validation
             if (!fullName) {
                 showToast('Please enter your full name', 'error');
+                document.getElementById('fullName').focus();
                 return;
             }
 
-            if (!termsAccepted) {
-                showToast('Please accept the Terms of Service', 'error');
-                return;
-            }
-
-            if (password !== confirmPassword) {
-                showToast('Passwords do not match', 'error');
-                return;
-            }
-
-            if (password.length < 6) {
-                showToast('Password must be at least 6 characters', 'error');
+            if (!email) {
+                showToast('Please enter your email address', 'error');
+                document.getElementById('email').focus();
                 return;
             }
 
@@ -1030,18 +982,36 @@
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
                 showToast('Please enter a valid email address', 'error');
+                document.getElementById('email').focus();
                 return;
             }
 
-            // Check if still validating referral
-            if (isCheckingReferral) {
-                showToast('Please wait while we verify your referral code', 'error');
+            if (!password) {
+                showToast('Please enter a password', 'error');
+                document.getElementById('password').focus();
                 return;
             }
 
-            // Validate referral code if provided
-            if (referralCode && !isValidReferral) {
-                showToast('Please enter a valid referral code', 'error');
+            if (password.length < 6) {
+                showToast('Password must be at least 6 characters', 'error');
+                document.getElementById('password').focus();
+                return;
+            }
+
+            if (!confirmPassword) {
+                showToast('Please confirm your password', 'error');
+                document.getElementById('confirmPassword').focus();
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showToast('Passwords do not match', 'error');
+                document.getElementById('confirmPassword').focus();
+                return;
+            }
+
+            if (!termsAccepted) {
+                showToast('Please accept the Terms of Service', 'error');
                 return;
             }
 
@@ -1051,6 +1021,25 @@
             signupBtn.textContent = '';
 
             try {
+                // Check referral code if provided
+                if (referralCode) {
+                    const isValidReferral = await checkReferralCode(referralCode);
+                    
+                    if (!isValidReferral) {
+                        showToast('Invalid referral code. Please check and try again.', 'error');
+                        document.getElementById('referralError').classList.add('show');
+                        document.getElementById('referralCode').classList.add('error');
+                        
+                        // Remove loading state
+                        signupBtn.classList.remove('loading');
+                        signupBtn.textContent = 'Create Account';
+                        return;
+                    } else {
+                        document.getElementById('referralError').classList.remove('show');
+                        document.getElementById('referralCode').classList.remove('error');
+                    }
+                }
+
                 // Create user with Firebase Authentication
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 const user = userCredential.user;
@@ -1068,7 +1057,7 @@
                 });
 
                 // Update referrer's team count if referral code was used
-                if (referralCode && isValidReferral) {
+                if (referralCode) {
                     await updateReferrerTeam(referralCode);
                 }
 
